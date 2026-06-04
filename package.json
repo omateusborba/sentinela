@@ -9,6 +9,7 @@
     "dev:backend": "npm run dev -w @sentinela/backend",
     "dev:web": "npm run dev -w @sentinela/web",
     "build:web": "npm run build -w @sentinela/web",
+    "deploy:backend": "npm run deploy -w @sentinela/backend",
     "typecheck": "npm run typecheck -w @sentinela/shared && npm run typecheck -w @sentinela/backend && npm run typecheck -w @sentinela/web"
   }
 }
