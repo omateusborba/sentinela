@@ -1,0 +1,8 @@
+name = "sentinela-backend"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+
+[[kv_namespaces]]
+binding = "FIRES_CACHE"
+id = "1630b620c6ae48d8a5e9e2a4f688672a"
+preview_id = "00000000000000000000000000000000"

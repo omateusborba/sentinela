@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <link rel="stylesheet" href="/leaflet/leaflet.css" />
+  <script src="/leaflet/leaflet.js"></script>
+  <style>
+    html, body {
+      height: 100%; width: 100%; margin: 0; padding: 0;
+      overflow: hidden; position: fixed; inset: 0;
+    }
+    #map {
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: #aad3df;
+    }
+    #status {
+      position: absolute; top: 8px; left: 8px; z-index: 1000;
+      background: rgba(0,0,0,0.7); color: #fff; padding: 6px 10px;
+      border-radius: 6px; font: 12px sans-serif;
+    }
+    .leaflet-tile-pane img { opacity: 1 !important; visibility: visible !important; }
+  </style>
+</head>
+<body>
+  <div id="status">Carregando mapa…</div>
+  <div id="map"></div>
+  <script>
+    const BRAZIL_BBOX = '-74,-34,-34,6';
+    const params = new URLSearchParams(location.search);
+    const days = params.get('days') || '1';
+    const status = document.getElementById('status');
+    const tileUrl = location.origin + '/api/tiles/{z}/{x}/{y}.png';
+
+    let map = null;
+    let layerGroup = null;
+    let tileLayer = null;
+    let tileErrors = 0;
+
+    function initMap() {
+      if (map) return;
+      map = L.map('map', { zoomControl: true, preferCanvas: false }).setView([-14.5, -52], 4);
+      tileLayer = L.tileLayer(tileUrl, {
+        maxZoom: 19,
+        minZoom: 3,
+        tileSize: 256,
+        detectRetina: false,
+        updateWhenIdle: false,
+        keepBuffer: 2,
+        attribution: '&copy; OpenStreetMap',
+      });
+      tileLayer.on('tileerror', function() {
+        tileErrors++;
+        if (tileErrors === 5) {
+          status.textContent = 'Erro ao carregar tiles (' + tileErrors + ')';
+        }
+      });
+      tileLayer.on('tileload', function() {
+        if (tileErrors === 0) status.textContent = 'Mapa OK · carregando focos…';
+      });
+      tileLayer.addTo(map);
+      layerGroup = L.layerGroup().addTo(map);
+      [50, 200, 500, 1200].forEach(function(ms) {
+        setTimeout(function() {
+          map.invalidateSize(true);
+          if (tileLayer) tileLayer.redraw();
+        }, ms);
+      });
+    }
+
+    function renderFires(fires) {
+      layerGroup.clearLayers();
+      const markers = [];
+      const max = 800;
+      const step = fires.length > max ? Math.ceil(fires.length / max) : 1;
+      for (let i = 0; i < fires.length; i += step) {
+        const f = fires[i];
+        const color = f.confidence === 'low' ? '#22c55e' : (f.confidence === 'high' ? '#ef4444' : '#f59e0b');
+        const m = L.circleMarker([f.latitude, f.longitude], {
+          radius: 5, color, fillColor: color, fillOpacity: 0.85, weight: 1
+        }).bindPopup('<b>' + f.id + '</b><br>' + f.confidence);
+        layerGroup.addLayer(m);
+        markers.push(m);
+      }
+      if (markers.length > 0) {
+        map.fitBounds(L.featureGroup(markers).getBounds().pad(0.08));
+      }
+      setTimeout(function() { map.invalidateSize(true); }, 200);
+      status.textContent = fires.length + ' focos · ' + days + 'd';
+    }
+
+    async function load() {
+      try {
+        initMap();
+        const res = await fetch('/api/fires?bbox=' + BRAZIL_BBOX + '&days=' + days);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        renderFires(data.hotspots || []);
+      } catch (e) {
+        status.textContent = 'Erro: ' + e.message;
+      }
+    }
+
+    load();
+  </script>
+</body>
+</html>

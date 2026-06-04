@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Sentinela</string>
+    <string name="notification_channel_name">Alertas de proximidade</string>
+    <string name="notification_channel_desc">Avisos quando um foco de calor entra no raio de um ponto monitorado</string>
+    <string name="notification_proximity_title">⚠️ Alerta Sentinela</string>
+    <string name="notification_proximity_body">Foco a %1$.1f km de %2$s</string>
+</resources>

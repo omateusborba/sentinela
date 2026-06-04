@@ -1,0 +1,14 @@
+{
+  "name": "sentinela",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:backend": "npm run dev -w @sentinela/backend",
+    "dev:web": "npm run dev -w @sentinela/web",
+    "build:web": "npm run build -w @sentinela/web",
+    "typecheck": "npm run typecheck -w @sentinela/shared && npm run typecheck -w @sentinela/backend && npm run typecheck -w @sentinela/web"
+  }
+}

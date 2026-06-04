@@ -1,0 +1,3 @@
+# Copy to .dev.vars (never commit .dev.vars)
+# Register MAP_KEY: https://firms.modaps.eosdis.nasa.gov/api/map_key/
+FIRMS_MAP_KEY=645b56059567f4d66dceaa4c5d91e583
