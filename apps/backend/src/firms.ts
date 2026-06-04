@@ -18,7 +18,17 @@ export async function fetchFirmsCsv(url: string): Promise<string> {
   });
 
   if (!response.ok) {
-    throw new Error(`FIRMS API error: ${response.status} ${response.statusText}`);
+    const body = (await response.text()).trim();
+    if (body.includes("Invalid MAP_KEY")) {
+      throw new Error(
+        "FIRMS_MAP_KEY inválida ou ausente no Worker. Configure o secret na Cloudflare (Settings → Variables).",
+      );
+    }
+    throw new Error(
+      body
+        ? `FIRMS API error: ${response.status} — ${body.slice(0, 120)}`
+        : `FIRMS API error: ${response.status} ${response.statusText}`,
+    );
   }
 
   return response.text();

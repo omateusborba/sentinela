@@ -98,7 +98,12 @@ O `wrangler.toml` fica na **raiz do monorepo** (para o CI da Cloudflare achar o 
 | Build command | *(vazio)* ou `npm install` |
 | Deploy command | `npx wrangler deploy` ou `npm run deploy:backend` |
 
-No painel do Worker → **Settings** → **Variables** → secret `FIRMS_MAP_KEY`.
+No painel do Worker → **Settings** → **Variables and Secrets** → adicione o secret **`FIRMS_MAP_KEY`** com a mesma chave do `apps/backend/.dev.vars` (sem aspas, sem espaços). Sem isso, `/api/fires` retorna 502.
+
+```bash
+# ou via CLI (na raiz do monorepo):
+npx wrangler secret put FIRMS_MAP_KEY
+```
 
 **CLI local:**
 

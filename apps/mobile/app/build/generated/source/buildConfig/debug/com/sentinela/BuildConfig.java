@@ -10,5 +10,5 @@ public final class BuildConfig {
   public static final int VERSION_CODE = 1;
   public static final String VERSION_NAME = "1.0.0";
   // Field from default config.
-  public static final String SENTINELA_API_URL = "http://127.0.0.1:8787";
+  public static final String SENTINELA_API_URL = "https://sentinela.mateus-borba.workers.dev";
 }

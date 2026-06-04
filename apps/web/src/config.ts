@@ -1,9 +1,10 @@
+import { SENTINELA_API_URL } from "@sentinela/shared";
+
 /** Brazil bounding box (west,south,east,north). */
 export const BRAZIL_BBOX = "-74,-34,-34,6";
 
 export const API_BASE =
-  import.meta.env.VITE_API_URL?.replace(/\/$/, "") ||
-  "http://localhost:8787";
+  import.meta.env.VITE_API_URL?.replace(/\/$/, "") || SENTINELA_API_URL;
 
 export type PeriodKey = "24h" | "3d" | "5d";
 

@@ -23,7 +23,7 @@ const app = new Hono<{ Bindings: Env }>();
 
 const CORS_ORIGINS = [
   "http://localhost:5173",
-  // TODO: adicionar origem de produção do painel web
+  "https://sentinela.mateus-borba.workers.dev",
 ];
 
 app.use(

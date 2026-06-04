@@ -16,7 +16,8 @@ val localProperties = Properties().apply {
 }
 
 val sentinelaApiUrl: String =
-    localProperties.getProperty("SENTINELA_API_URL") ?: "http://10.0.2.2:8787"
+    localProperties.getProperty("SENTINELA_API_URL")
+        ?: "https://sentinela.mateus-borba.workers.dev"
 
 android {
     namespace = "com.sentinela"

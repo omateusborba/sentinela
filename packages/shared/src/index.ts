@@ -1,3 +1,6 @@
+/** Backend Worker em produção (Cloudflare). */
+export const SENTINELA_API_URL = "https://sentinela.mateus-borba.workers.dev";
+
 export interface FireHotspot {
   id: string;
   latitude: number;

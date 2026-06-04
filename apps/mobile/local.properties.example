@@ -1,7 +1,8 @@
 # Copy to local.properties (never commit local.properties)
 sdk.dir=C\:\\Users\\YOUR_USER\\AppData\\Local\\Android\\Sdk
 
-# Backend URL (emulador + adb reverse — veja README)
-SENTINELA_API_URL=http://127.0.0.1:8787
-# Alternativa sem adb reverse (Linux/macOS ou se 10.0.2.2 funcionar):
+# Backend (produção)
+SENTINELA_API_URL=https://sentinela.mateus-borba.workers.dev
+# Dev local (emulador + adb reverse):
+# SENTINELA_API_URL=http://127.0.0.1:8787
 # SENTINELA_API_URL=http://10.0.2.2:8787
