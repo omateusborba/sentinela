@@ -23,13 +23,25 @@ const app = new Hono<{ Bindings: Env }>();
 
 const CORS_ORIGINS = [
   "http://localhost:5173",
-  "https://sentinela.mateus-borba.workers.dev",
+  "https://app.sentinela.pages.dev",
+  "https://sentinela-7jx.pages.dev",
 ];
+
+function isAllowedCorsOrigin(origin: string): boolean {
+  if (CORS_ORIGINS.includes(origin)) return true;
+  try {
+    const { protocol, hostname } = new URL(origin);
+    return protocol === "https:" && hostname.endsWith(".pages.dev");
+  } catch {
+    return false;
+  }
+}
 
 app.use(
   "*",
   cors({
-    origin: CORS_ORIGINS,
+    origin: (origin) =>
+      origin && isAllowedCorsOrigin(origin) ? origin : null,
     allowMethods: ["GET", "OPTIONS"],
     allowHeaders: ["Content-Type"],
   }),
