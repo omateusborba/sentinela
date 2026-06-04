@@ -1,0 +1,14 @@
+# Config na raiz do monorepo — usado pelo CI Cloudflare (`npx wrangler deploy`).
+# Desenvolvimento local: npm run dev:backend
+name = "sentinela"
+main = "apps/backend/src/index.ts"
+compatibility_date = "2025-01-01"
+
+[[kv_namespaces]]
+binding = "FIRES_CACHE"
+id = "1630b620c6ae48d8a5e9e2a4f688672a"
+preview_id = "00000000000000000000000000000000"
+
+[assets]
+directory = "apps/backend/static"
+binding = "ASSETS"

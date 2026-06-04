@@ -89,10 +89,22 @@ A segunda chamada idêntica a `/api/fires` deve retornar o header `X-Cache: HIT`
 
 ### Deploy (Fase 4 — resumo)
 
+O `wrangler.toml` fica na **raiz do monorepo** (para o CI da Cloudflare achar o entry-point).
+
+**Cloudflare Workers (Git):**
+
+| Campo | Valor |
+|--------|--------|
+| Build command | *(vazio)* ou `npm install` |
+| Deploy command | `npx wrangler deploy` ou `npm run deploy:backend` |
+
+No painel do Worker → **Settings** → **Variables** → secret `FIRMS_MAP_KEY`.
+
+**CLI local:**
+
 ```bash
-cd apps/backend
-npx wrangler secret put FIRMS_MAP_KEY
-npx wrangler deploy
+npx wrangler secret put FIRMS_MAP_KEY --config wrangler.toml
+npm run deploy:backend
 ```
 
 Depois de publicar o painel web, adicione a URL de produção em `CORS_ORIGINS` em `apps/backend/src/index.ts`.
