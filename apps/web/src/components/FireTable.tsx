@@ -37,6 +37,42 @@ export function FireTable({ hotspots, maxRows = 50 }: FireTableProps) {
       <h2 id="table-heading" className="section-title">
         Focos recentes
       </h2>
+      <ul className="fire-cards" aria-label="Lista de focos">
+        {rows.length === 0 ? (
+          <li className="fire-cards__empty">Nenhum foco no período selecionado.</li>
+        ) : (
+          rows.map((fire) => (
+            <li key={fire.id} className="fire-card">
+              <div className="fire-card__head">
+                <time dateTime={fire.acquiredAt}>{formatDateTime(fire.acquiredAt)}</time>
+                <span className={`badge badge--${fire.confidence}`}>
+                  {CONFIDENCE_PT[fire.confidence]}
+                </span>
+              </div>
+              <dl className="fire-card__grid">
+                <div>
+                  <dt>Coordenadas</dt>
+                  <dd>
+                    {fire.latitude.toFixed(4)}, {fire.longitude.toFixed(4)}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Sensor</dt>
+                  <dd>
+                    {fire.satellite}
+                    {fire.instrument ? ` / ${fire.instrument}` : ""}
+                  </dd>
+                </div>
+                <div>
+                  <dt>FRP</dt>
+                  <dd>{fire.frp !== null ? `${fire.frp.toFixed(1)} MW` : "—"}</dd>
+                </div>
+              </dl>
+            </li>
+          ))
+        )}
+      </ul>
+
       <div className="table-wrap">
         <table className="fire-table">
           <thead>

@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 import type { FireHotspot } from "@sentinela/shared";
 import { markerColor, markerRadius } from "../utils/markerStyle";
+import { MapResizeHandler } from "./MapResizeHandler";
 import "leaflet/dist/leaflet.css";
 
 const BRAZIL_CENTER: [number, number] = [-14.5, -52];
@@ -45,6 +46,7 @@ export function FireMap({ hotspots }: FireMapProps) {
           scrollWheelZoom
           className="fire-map"
         >
+          <MapResizeHandler />
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
