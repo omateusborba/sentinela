@@ -1,17 +1,4 @@
-:root {
-  --bg: #0f1419;
-  --surface: #1a2332;
-  --surface-elevated: #243044;
-  --border: #2d3f56;
-  --text: #e8edf4;
-  --text-muted: #8b9cb3;
-  --accent: #3b82f6;
-  --risk-low: #22c55e;
-  --risk-medium: #eab308;
-  --risk-high: #ef4444;
-  --radius: 10px;
-  --font: "DM Sans", system-ui, sans-serif;
-}
+@import "./theme.css";
 
 *,
 *::before,
@@ -27,8 +14,8 @@ body,
 }
 
 body {
-  font-family: var(--font);
-  background: var(--bg);
+  font-family: var(--font-body);
+  background: var(--background);
   color: var(--text);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -47,9 +34,9 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 1rem 1.5rem;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
+  padding: 0.85rem 1.5rem;
+  background: var(--navy);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -61,22 +48,25 @@ body {
   gap: 0.75rem;
 }
 
-.header__logo {
-  font-size: 1.75rem;
-  color: var(--accent);
+.header__logo-img {
+  height: 40px;
+  width: auto;
+  display: block;
 }
 
 .header__title {
   margin: 0;
+  font-family: var(--font-display);
   font-size: 1.35rem;
   font-weight: 700;
   letter-spacing: -0.02em;
+  color: #fff;
 }
 
 .header__subtitle {
   margin: 0;
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.75);
 }
 
 .header__actions {
@@ -88,17 +78,17 @@ body {
 
 .header__count {
   font-size: 0.875rem;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.85);
   min-width: 6rem;
   text-align: right;
 }
 
 .period-filter {
   display: flex;
-  background: var(--bg);
+  background: var(--navy-deep);
   border-radius: var(--radius);
   padding: 3px;
-  border: 1px solid var(--border);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .period-filter__btn {
@@ -109,17 +99,17 @@ body {
   border: none;
   border-radius: 7px;
   background: transparent;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.7);
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
 
 .period-filter__btn:hover:not(:disabled) {
-  color: var(--text);
+  color: #fff;
 }
 
 .period-filter__btn--active {
-  background: var(--accent);
+  background: var(--flame-orange);
   color: #fff;
 }
 
@@ -128,7 +118,6 @@ body {
   cursor: not-allowed;
 }
 
-/* Main layout */
 .app__main {
   flex: 1;
   padding: 1.25rem 1.5rem 2rem;
@@ -140,6 +129,7 @@ body {
 
 .section-title {
   margin: 0 0 0.75rem;
+  font-family: var(--font-display);
   font-size: 0.95rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -176,6 +166,20 @@ body {
 
 .risk-card--high {
   border-left-color: var(--risk-high);
+  background: var(--risk-high);
+  border-color: var(--risk-high);
+  color: #fff;
+}
+
+.risk-card--high .risk-card__name,
+.risk-card--high .risk-card__score,
+.risk-card--high .risk-card__meta,
+.risk-card--high .risk-card__level {
+  color: #fff;
+}
+
+.risk-card--high .risk-card__muted {
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .risk-card__name {
@@ -186,13 +190,23 @@ body {
 
 .risk-card__level {
   margin: 0;
-  font-size: 1.25rem;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
   font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .risk-card__score {
   margin: 0.25rem 0 0;
   font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.risk-card__score strong {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
 }
 
 .risk-card__meta {
@@ -212,7 +226,6 @@ body {
   color: var(--risk-high);
 }
 
-/* Dashboard grid */
 .dashboard-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -226,7 +239,6 @@ body {
   }
 }
 
-/* Map */
 .map-section__legend {
   display: flex;
   gap: 1rem;
@@ -245,15 +257,15 @@ body {
 }
 
 .dot--low {
-  background: #22c55e;
+  background: var(--confidence-low);
 }
 
 .dot--nominal {
-  background: #f59e0b;
+  background: var(--confidence-nominal);
 }
 
 .dot--high {
-  background: #ef4444;
+  background: var(--confidence-high);
 }
 
 .map-container {
@@ -272,7 +284,7 @@ body {
 .fire-map {
   width: 100%;
   height: 100%;
-  background: #1e293b;
+  background: #e8eef5;
 }
 
 .leaflet-popup-content {
@@ -281,7 +293,6 @@ body {
   margin: 0.5rem 0.75rem;
 }
 
-/* Table */
 .table-wrap {
   overflow-x: auto;
   border: 1px solid var(--border);
@@ -295,6 +306,7 @@ body {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .fire-table th,
@@ -307,16 +319,20 @@ body {
 .fire-table th {
   position: sticky;
   top: 0;
-  background: var(--surface-elevated);
+  background: var(--navy);
   font-weight: 600;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.9);
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
+.fire-table tbody tr:nth-child(even) {
+  background: var(--background);
+}
+
 .fire-table tbody tr:hover {
-  background: rgba(59, 130, 246, 0.08);
+  background: rgba(244, 115, 30, 0.08);
 }
 
 .fire-table__empty {
@@ -340,21 +356,20 @@ body {
 }
 
 .badge--low {
-  background: rgba(34, 197, 94, 0.2);
-  color: #4ade80;
+  background: rgba(30, 158, 91, 0.15);
+  color: var(--risk-low);
 }
 
 .badge--nominal {
-  background: rgba(245, 158, 11, 0.2);
-  color: #fbbf24;
+  background: rgba(244, 115, 30, 0.15);
+  color: var(--flame-orange);
 }
 
 .badge--high {
-  background: rgba(239, 68, 68, 0.2);
-  color: #f87171;
+  background: rgba(232, 64, 30, 0.15);
+  color: var(--flame-red);
 }
 
-/* Status */
 .status-banner {
   display: flex;
   align-items: center;
@@ -363,10 +378,10 @@ body {
   flex-wrap: wrap;
   padding: 0.85rem 1rem;
   margin-bottom: 1rem;
-  background: rgba(239, 68, 68, 0.12);
-  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: rgba(232, 64, 30, 0.1);
+  border: 1px solid rgba(232, 64, 30, 0.35);
   border-radius: var(--radius);
-  color: #fca5a5;
+  color: var(--flame-red);
 }
 
 .status-banner p {
@@ -387,7 +402,7 @@ body {
   width: 40px;
   height: 40px;
   border: 3px solid var(--border);
-  border-top-color: var(--accent);
+  border-top-color: var(--flame-orange);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -414,6 +429,17 @@ body {
 
 .btn--ghost:hover {
   background: var(--surface-elevated);
+}
+
+.btn--primary {
+  background: var(--flame-orange);
+  border-color: var(--flame-orange);
+  color: #fff;
+}
+
+.btn--primary:hover {
+  background: var(--flame-red);
+  border-color: var(--flame-red);
 }
 
 .footer {

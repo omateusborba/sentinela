@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun LoadingContent(modifier: Modifier = Modifier) {
     Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        CircularProgressIndicator()
+        CircularProgressIndicator(color = MaterialTheme.colorScheme.secondary)
     }
 }
 

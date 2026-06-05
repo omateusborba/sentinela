@@ -1,9 +1,9 @@
 import type { FireHotspot } from "@sentinela/shared";
 
 const CONFIDENCE_COLOR: Record<FireHotspot["confidence"], string> = {
-  low: "#22c55e",
-  nominal: "#f59e0b",
-  high: "#ef4444",
+  low: "#F5C842",
+  nominal: "#F4731E",
+  high: "#E8401E",
 };
 
 export function markerColor(fire: FireHotspot): string {

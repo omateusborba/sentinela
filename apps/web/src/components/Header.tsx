@@ -12,13 +12,13 @@ export function Header({ period, onPeriodChange, fireCount, loading }: HeaderPro
   return (
     <header className="header">
       <div className="header__brand">
-        <span className="header__logo" aria-hidden>
-          ◉
-        </span>
-        <div>
-          <h1 className="header__title">Sentinela</h1>
-          <p className="header__subtitle">Focos de calor — NASA FIRMS</p>
-        </div>
+        <img
+          className="header__logo-img"
+          src="/logo-lockup.png"
+          alt="Sentinela"
+          width={200}
+          height={40}
+        />
       </div>
 
       <div className="header__actions">

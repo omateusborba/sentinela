@@ -28,7 +28,7 @@ fun FireMapView(
         modifier = modifier,
         factory = { context ->
             WebView(context).apply {
-                setBackgroundColor(Color.parseColor("#aad3df"))
+                setBackgroundColor(Color.parseColor("#F7F6F2"))
                 setLayerType(View.LAYER_TYPE_SOFTWARE, null)
                 settings.apply {
                     javaScriptEnabled = true

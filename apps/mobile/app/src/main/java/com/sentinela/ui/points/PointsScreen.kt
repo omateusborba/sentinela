@@ -17,7 +17,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import com.sentinela.ui.components.SentinelaTopAppBar
+import com.sentinela.ui.theme.SentinelaColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -43,8 +44,8 @@ fun PointsScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Pontos monitorados") },
+            SentinelaTopAppBar(
+                title = "Pontos monitorados",
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
@@ -99,7 +100,13 @@ private fun PointRow(
         headlineContent = {
             BadgedBox(
                 badge = {
-                    Badge(containerColor = if (point.inAlert) Color(0xFFEF4444) else Color(0xFF22C55E)) {
+                    Badge(
+                        containerColor = if (point.inAlert) {
+                            SentinelaColors.RiskHigh
+                        } else {
+                            SentinelaColors.RiskLow
+                        },
+                    ) {
                         Text(if (point.inAlert) "!" else "OK")
                     }
                 },

@@ -75,7 +75,7 @@
       const step = fires.length > max ? Math.ceil(fires.length / max) : 1;
       for (let i = 0; i < fires.length; i += step) {
         const f = fires[i];
-        const color = f.confidence === 'low' ? '#22c55e' : (f.confidence === 'high' ? '#ef4444' : '#f59e0b');
+        const color = f.confidence === 'low' ? '#F5C842' : (f.confidence === 'high' ? '#E8401E' : '#F4731E');
         const m = L.circleMarker([f.latitude, f.longitude], {
           radius: 5, color, fillColor: color, fillOpacity: 0.85, weight: 1
         }).bindPopup('<b>' + f.id + '</b><br>' + f.confidence);

@@ -1,0 +1,22 @@
+:root {
+  --navy: #1b2a52;
+  --navy-deep: #0f1a33;
+  --flame-amber: #f9a825;
+  --flame-orange: #f4731e;
+  --flame-red: #e8401e;
+  --surface: #ffffff;
+  --background: #f7f6f2;
+  --text: #1b2a52;
+  --text-muted: #5b6478;
+  --border: #d8dce6;
+  --surface-elevated: #eef0f4;
+  --risk-low: #1e9e5b;
+  --risk-medium: #f5a623;
+  --risk-high: #e8401e;
+  --confidence-low: #f5c842;
+  --confidence-nominal: var(--flame-orange);
+  --confidence-high: var(--flame-red);
+  --radius: 10px;
+  --font-display: "Sora", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+}

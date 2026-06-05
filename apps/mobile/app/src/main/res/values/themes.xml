@@ -1,4 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.Sentinela" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.Sentinela" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">@color/sentinela_navy</item>
+        <item name="android:navigationBarColor">@color/sentinela_navy</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+
+    <style name="Theme.Sentinela.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/sentinela_navy</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/sentinela_icon</item>
+        <item name="postSplashScreenTheme">@style/Theme.Sentinela</item>
+    </style>
 </resources>

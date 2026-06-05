@@ -16,11 +16,11 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -37,6 +37,10 @@ import com.sentinela.ui.components.LoadingContent
 import com.sentinela.ui.components.LoadableUiState
 import com.sentinela.ui.components.FireMapView
 import com.sentinela.ui.components.PeriodFilterChips
+import com.sentinela.ui.components.SentinelaTopAppBar
+import com.sentinela.ui.theme.SentinelaColors
+import com.sentinela.ui.theme.riskAccentColor
+import com.sentinela.ui.theme.riskCardColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,8 +57,9 @@ fun MapScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Sentinela") },
+            SentinelaTopAppBar(
+                title = "Sentinela",
+                showLogo = true,
                 actions = {
                     IconButton(onClick = onOpenAlerts) {
                         Icon(Icons.Default.Warning, contentDescription = "Alertas")
@@ -69,7 +74,12 @@ fun MapScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onOpenPoints) {
+            FloatingActionButton(
+                onClick = onOpenPoints,
+                containerColor = SentinelaColors.FlameOrange,
+                contentColor = androidx.compose.ui.graphics.Color.White,
+                elevation = FloatingActionButtonDefaults.elevation(),
+            ) {
                 Icon(Icons.Default.LocationOn, contentDescription = "Pontos monitorados")
             }
         },
@@ -105,7 +115,7 @@ fun MapScreen(
                         Text(
                             text = "$alertCount ponto(s) em alerta",
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-                            color = Color(0xFFEF4444),
+                            color = SentinelaColors.FlameRed,
                         )
                     }
                     Card(
@@ -124,7 +134,7 @@ fun MapScreen(
                     Text(
                         text = "© OpenStreetMap contributors",
                         style = MaterialTheme.typography.labelSmall,
-                        color = Color(0xFF8B9CB3),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                     )
                 }
@@ -144,11 +154,16 @@ private fun RiskBanner(level: RiskLevel, score: Double, totalFires: Int) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 4.dp),
-        colors = CardDefaults.cardColors(),
+        colors = riskCardColors(level),
     ) {
         Text(
             text = "$label · score ${score.toInt()} · $totalFires focos (Brasil)",
             modifier = Modifier.padding(12.dp),
+            color = if (level == RiskLevel.HIGH) {
+                androidx.compose.ui.graphics.Color.White
+            } else {
+                riskAccentColor(level)
+            },
         )
     }
 }

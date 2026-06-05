@@ -8,7 +8,7 @@ export function StatusBanner({ message, onRetry }: StatusBannerProps) {
     <div className="status-banner" role="alert">
       <p>{message}</p>
       {onRetry && (
-        <button type="button" className="btn btn--ghost" onClick={onRetry}>
+        <button type="button" className="btn btn--primary" onClick={onRetry}>
           Tentar novamente
         </button>
       )}
