@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <link rel="stylesheet" href="leaflet/leaflet.css" />
+  <script src="leaflet/leaflet.js"></script>
+  <style>
+    html, body, #map { height: 100%; width: 100%; margin: 0; padding: 0; overflow: hidden; }
+    #map { background: #aad3df; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <script>
+    let map = null;
+    let layerGroup = null;
+    let tileLayer = null;
+
+    function addTileLayer() {
+      const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        subdomains: 'abc',
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap'
+      });
+      const carto = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        subdomains: 'abcd',
+        maxZoom: 20,
+        attribution: '&copy; CARTO &copy; OpenStreetMap'
+      });
+      osm.addTo(map);
+      let errors = 0;
+      osm.on('tileerror', function() {
+        errors++;
+        if (errors > 3 && !map.hasLayer(carto)) {
+          map.removeLayer(osm);
+          carto.addTo(map);
+          tileLayer = carto;
+        }
+      });
+      tileLayer = osm;
+    }
+
+    function initMap() {
+      if (map) return;
+      map = L.map('map', { zoomControl: true, preferCanvas: true }).setView([-14.5, -52], 4);
+      addTileLayer();
+      layerGroup = L.layerGroup().addTo(map);
+      setTimeout(function() { map.invalidateSize(true); }, 50);
+    }
+
+    function setFires(json) {
+      try {
+        initMap();
+        const fires = JSON.parse(json);
+        layerGroup.clearLayers();
+        const markers = [];
+        fires.forEach(function(f) {
+          const m = L.circleMarker([f.lat, f.lon], {
+            radius: 5,
+            color: f.color,
+            fillColor: f.color,
+            fillOpacity: 0.85,
+            weight: 1
+          }).bindPopup('<b>Foco ' + f.id + '</b><br>' + f.label);
+          layerGroup.addLayer(m);
+          markers.push(m);
+        });
+        if (markers.length > 0) {
+          map.fitBounds(L.featureGroup(markers).getBounds().pad(0.08));
+        } else {
+          map.setView([-14.5, -52], 4);
+        }
+        setTimeout(function() { map.invalidateSize(true); }, 150);
+        setTimeout(function() { map.invalidateSize(true); }, 500);
+      } catch (e) {
+        console.error('setFires error', e);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', initMap);
+  </script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.sentinela.app-mergeReleaseResources-53:/values-v30/values-v30.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\mateu\\.gradle\\caches\\8.11.1\\transforms\\0de93cab589f7590eb478774f60dd824\\transformed\\material3-release\\res\\values-v30\\values-v30.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "72",
+                        "endOffsets": "123"
+                    }
+                }
+            ]
+        }
+    ]
+}

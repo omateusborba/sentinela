@@ -27,9 +27,9 @@ fun SentinelaNavGraph(
     ) {
         composable(Routes.MAP) {
             MapScreen(
-                onOpenFires = { navController.navigate(Routes.FIRE_LIST) },
                 onOpenPoints = { navController.navigate(Routes.POINTS) },
                 onOpenAlerts = { navController.navigate(Routes.ALERT) },
+                onFireClick = { id -> navController.navigate(Routes.fireDetail(id)) },
             )
         }
         composable(Routes.FIRE_LIST) {

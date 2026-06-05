@@ -29,3 +29,21 @@ fun riskAccentColor(level: RiskLevel): Color = when (level) {
     RiskLevel.MEDIUM -> SentinelaColors.RiskMedium
     RiskLevel.HIGH -> SentinelaColors.RiskHigh
 }
+
+/** Nome da região — branco no card alto; navy nos demais (como no web). */
+fun riskRegionNameColor(level: RiskLevel?): Color = when (level) {
+    RiskLevel.HIGH -> Color.White
+    else -> SentinelaColors.Text
+}
+
+fun riskLevelLabel(level: RiskLevel): String = when (level) {
+    RiskLevel.LOW -> "Baixo"
+    RiskLevel.MEDIUM -> "Médio"
+    RiskLevel.HIGH -> "Alto"
+}
+
+fun riskTrendLabel(trend: String): String = when (trend.lowercase()) {
+    "rising" -> "↑ Subindo"
+    "falling" -> "↓ Caindo"
+    else -> "→ Estável"
+}

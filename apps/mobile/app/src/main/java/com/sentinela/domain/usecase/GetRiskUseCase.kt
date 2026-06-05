@@ -6,6 +6,6 @@ import com.sentinela.domain.model.RegionRisk
 class GetRiskUseCase(
     private val fireRepository: FireRepository,
 ) {
-    suspend operator fun invoke(days: Int): RegionRisk =
-        fireRepository.getRisk(days)
+    suspend operator fun invoke(bbox: String, days: Int): RegionRisk =
+        fireRepository.getRisk(bbox, days)
 }

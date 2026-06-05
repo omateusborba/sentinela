@@ -1,0 +1,18 @@
+R_DEF: Internal format may change without notice
+local
+color ic_launcher_background
+color sentinela_flame_red
+color sentinela_navy
+drawable ic_launcher_foreground
+drawable ic_stat_notify
+drawable sentinela_icon
+drawable sentinela_lockup
+mipmap ic_launcher
+mipmap ic_launcher_round
+string app_name
+string notification_channel_desc
+string notification_channel_name
+string notification_proximity_body
+string notification_proximity_title
+style Theme.Sentinela
+style Theme.Sentinela.Splash

@@ -1,0 +1,26 @@
+[
+    {
+        "merged": "com.sentinela.app-release-55:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "com.sentinela.app-main-56:/mipmap-anydpi-v26/ic_launcher_round.xml"
+    },
+    {
+        "merged": "com.sentinela.app-release-55:/drawable_sentinela_lockup.png.flat",
+        "source": "com.sentinela.app-main-56:/drawable/sentinela_lockup.png"
+    },
+    {
+        "merged": "com.sentinela.app-release-55:/drawable_sentinela_icon.png.flat",
+        "source": "com.sentinela.app-main-56:/drawable/sentinela_icon.png"
+    },
+    {
+        "merged": "com.sentinela.app-release-55:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.sentinela.app-main-56:/mipmap-anydpi-v26/ic_launcher.xml"
+    },
+    {
+        "merged": "com.sentinela.app-release-55:/drawable_ic_launcher_foreground.png.flat",
+        "source": "com.sentinela.app-main-56:/drawable/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "com.sentinela.app-release-55:/drawable_ic_stat_notify.xml.flat",
+        "source": "com.sentinela.app-main-56:/drawable/ic_stat_notify.xml"
+    }
+]

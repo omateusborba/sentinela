@@ -14,8 +14,8 @@ class FireRepository(
         return response.hotspots.map { it.toDomain() }
     }
 
-    suspend fun getRisk(days: Int): RegionRisk {
-        val response = api.getRisk(bbox = BRAZIL_BBOX, days = days)
+    suspend fun getRisk(bbox: String, days: Int): RegionRisk {
+        val response = api.getRisk(bbox = bbox, days = days)
         return response.risk.toDomain()
     }
 }

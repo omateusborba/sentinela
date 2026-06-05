@@ -10,6 +10,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
@@ -38,8 +39,12 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            SentinelaTheme {
-                Surface(modifier = Modifier.fillMaxSize()) {
+            // Tema claro fixo — igual ao site (evita texto claro em cards brancos no dark mode do sistema)
+            SentinelaTheme(darkTheme = false) {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background,
+                ) {
                     val navController = rememberNavController()
                     SentinelaNavGraph(
                         navController = navController,
