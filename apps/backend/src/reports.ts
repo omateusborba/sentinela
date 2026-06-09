@@ -1,5 +1,5 @@
 import type { FireReport } from "@sentinela/shared";
-import { parseBbox, type ValidationError } from "./validation";
+import { isValidationError, parseBbox, type ValidationError } from "./validation";
 
 export const REPORT_DESCRIPTION_MAX = 280;
 
@@ -58,13 +58,13 @@ export function parseCreateReportBody(
 
   const record = body as Record<string, unknown>;
   const latitude = parseLatitude(record.latitude);
-  if ("error" in latitude) return latitude;
+  if (isValidationError(latitude)) return latitude;
 
   const longitude = parseLongitude(record.longitude);
-  if ("error" in longitude) return longitude;
+  if (isValidationError(longitude)) return longitude;
 
   const severity = parseSeverity(record.severity);
-  if ("error" in severity) return severity;
+  if (isValidationError(severity)) return severity;
 
   if (typeof record.description !== "string") {
     return { error: "description must be a non-empty string" };
@@ -113,7 +113,7 @@ export function parseReportsQuery(
   };
 
   const bboxResult = parseBbox(getParam("bbox"));
-  if ("error" in bboxResult) return bboxResult;
+  if (isValidationError(bboxResult)) return bboxResult;
 
   const sinceResult = parseSince(getParam("since"));
   if (typeof sinceResult === "object") return sinceResult;
