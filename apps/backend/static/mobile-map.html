@@ -17,7 +17,7 @@
     #status {
       position: absolute; top: 8px; left: 8px; z-index: 1000;
       background: rgba(0,0,0,0.7); color: #fff; padding: 6px 10px;
-      border-radius: 6px; font: 12px sans-serif;
+      border-radius: 6px; font: 11px sans-serif; max-width: 90%;
     }
     .leaflet-tile-pane img { opacity: 1 !important; visibility: visible !important; }
   </style>
@@ -32,8 +32,13 @@
     const status = document.getElementById('status');
     const tileUrl = location.origin + '/api/tiles/{z}/{x}/{y}.png';
 
+    const REPORT_COLORS = { low: '#2563eb', medium: '#7c3aed', high: '#9333ea' };
+
     let map = null;
-    let layerGroup = null;
+    let firesLayer = null;
+    let reportsLayer = null;
+    let userLayer = null;
+    let userRadiusLayer = null;
     let tileLayer = null;
     let tileErrors = 0;
 
@@ -51,51 +56,79 @@
       });
       tileLayer.on('tileerror', function() {
         tileErrors++;
-        if (tileErrors === 5) {
-          status.textContent = 'Erro ao carregar tiles (' + tileErrors + ')';
-        }
-      });
-      tileLayer.on('tileload', function() {
-        if (tileErrors === 0) status.textContent = 'Mapa OK · carregando focos…';
+        if (tileErrors === 5) status.textContent = 'Erro tiles (' + tileErrors + ')';
       });
       tileLayer.addTo(map);
-      layerGroup = L.layerGroup().addTo(map);
+      firesLayer = L.layerGroup().addTo(map);
+      reportsLayer = L.layerGroup().addTo(map);
+      userLayer = L.layerGroup().addTo(map);
+      userRadiusLayer = L.layerGroup().addTo(map);
       [50, 200, 500, 1200].forEach(function(ms) {
-        setTimeout(function() {
-          map.invalidateSize(true);
-          if (tileLayer) tileLayer.redraw();
-        }, ms);
+        setTimeout(function() { map.invalidateSize(true); if (tileLayer) tileLayer.redraw(); }, ms);
       });
     }
 
     function renderFires(fires) {
-      layerGroup.clearLayers();
-      const markers = [];
+      firesLayer.clearLayers();
       const max = 800;
       const step = fires.length > max ? Math.ceil(fires.length / max) : 1;
       for (let i = 0; i < fires.length; i += step) {
         const f = fires[i];
         const color = f.confidence === 'low' ? '#F5C842' : (f.confidence === 'high' ? '#E8401E' : '#F4731E');
-        const m = L.circleMarker([f.latitude, f.longitude], {
-          radius: 5, color, fillColor: color, fillOpacity: 0.85, weight: 1
-        }).bindPopup('<b>' + f.id + '</b><br>' + f.confidence);
-        layerGroup.addLayer(m);
-        markers.push(m);
+        L.circleMarker([f.latitude, f.longitude], {
+          radius: 5, color: color, fillColor: color, fillOpacity: 0.85, weight: 1
+        }).bindPopup('<b>Satélite</b><br>' + f.id + '<br>' + f.confidence).addTo(firesLayer);
       }
-      if (markers.length > 0) {
-        map.fitBounds(L.featureGroup(markers).getBounds().pad(0.08));
-      }
-      setTimeout(function() { map.invalidateSize(true); }, 200);
-      status.textContent = fires.length + ' focos · ' + days + 'd';
     }
+
+    function renderReports(reports) {
+      reportsLayer.clearLayers();
+      reports.forEach(function(r) {
+        const color = REPORT_COLORS[r.severity] || REPORT_COLORS.medium;
+        L.circleMarker([r.latitude, r.longitude], {
+          radius: 8, color: '#fff', fillColor: color, fillOpacity: 0.9, weight: 2, dashArray: '3 2'
+        }).bindPopup(
+          '<b>Reporte comunidade</b><br>' +
+          (r.description || '') + '<br>Severidade: ' + r.severity + '<br>' + r.createdAt
+        ).addTo(reportsLayer);
+      });
+    }
+
+    window.setUserLocation = function(lat, lon) {
+      initMap();
+      userLayer.clearLayers();
+      userRadiusLayer.clearLayers();
+      L.circle([lat, lon], {
+        radius: 10000, color: '#2563eb', fillColor: '#2563eb', fillOpacity: 0.08, weight: 1, dashArray: '6 4'
+      }).addTo(userRadiusLayer);
+      L.circleMarker([lat, lon], {
+        radius: 9, color: '#fff', fillColor: '#2563eb', fillOpacity: 1, weight: 3
+      }).bindPopup('<b>Sua localização</b>').addTo(userLayer);
+    };
+
+    window.centerOnUser = function() {
+      if (!map || !userLayer.getLayers().length) return;
+      const ll = userLayer.getLayers()[0].getLatLng();
+      map.setView(ll, Math.max(map.getZoom(), 10));
+    };
 
     async function load() {
       try {
         initMap();
-        const res = await fetch('/api/fires?bbox=' + BRAZIL_BBOX + '&days=' + days);
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const data = await res.json();
-        renderFires(data.hotspots || []);
+        const [firesRes, reportsRes] = await Promise.all([
+          fetch('/api/fires?bbox=' + BRAZIL_BBOX + '&days=' + days),
+          fetch('/api/reports?bbox=' + BRAZIL_BBOX).catch(function() { return null; }),
+        ]);
+        if (!firesRes.ok) throw new Error('fires HTTP ' + firesRes.status);
+        const firesData = await firesRes.json();
+        renderFires(firesData.hotspots || []);
+        let reportCount = 0;
+        if (reportsRes && reportsRes.ok) {
+          const reports = await reportsRes.json();
+          reportCount = reports.length;
+          renderReports(reports);
+        }
+        status.textContent = (firesData.hotspots || []).length + ' focos · ' + reportCount + ' reportes · ' + days + 'd';
       } catch (e) {
         status.textContent = 'Erro: ' + e.message;
       }

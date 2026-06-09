@@ -12,11 +12,22 @@ import {
 } from "./validation";
 import { serveStatic } from "./assets";
 import { fetchOsmTile } from "./tiles";
+import {
+  parseCreateReportBody,
+  parseReportsQuery,
+  rowToFireReport,
+} from "./reports";
+
+/**
+ * MVP: reportes são anônimos e não moderados nesta versão.
+ * Autenticação, moderação e verificação cruzada com satélite são roadmap.
+ */
 
 export interface Env {
   FIRMS_MAP_KEY: string;
   FIRES_CACHE: KVNamespace;
   ASSETS: Fetcher;
+  DB: D1Database;
 }
 
 const app = new Hono<{ Bindings: Env }>();
@@ -42,7 +53,7 @@ app.use(
   cors({
     origin: (origin) =>
       origin && isAllowedCorsOrigin(origin) ? origin : null,
-    allowMethods: ["GET", "OPTIONS"],
+    allowMethods: ["GET", "POST", "OPTIONS"],
     allowHeaders: ["Content-Type"],
   }),
 );
@@ -166,6 +177,96 @@ app.get("/api/risk", async (c) => {
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
+    return c.json({ error: message }, 502);
+  }
+});
+
+app.post("/api/reports", async (c) => {
+  let body: unknown;
+  try {
+    body = await c.req.json();
+  } catch {
+    return c.json({ error: "invalid JSON body" }, 400);
+  }
+
+  const parsed = parseCreateReportBody(body);
+  if (isValidationError(parsed)) {
+    return c.json({ error: parsed.error }, 400);
+  }
+
+  const id = crypto.randomUUID();
+  const createdAt = new Date().toISOString();
+
+  try {
+    await c.env.DB.prepare(
+      `INSERT INTO reports (id, latitude, longitude, description, severity, created_at)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+    )
+      .bind(
+        id,
+        parsed.latitude,
+        parsed.longitude,
+        parsed.description,
+        parsed.severity,
+        createdAt,
+      )
+      .run();
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "database error";
+    return c.json({ error: message }, 502);
+  }
+
+  const report = rowToFireReport({
+    id,
+    latitude: parsed.latitude,
+    longitude: parsed.longitude,
+    description: parsed.description,
+    severity: parsed.severity,
+    created_at: createdAt,
+  });
+
+  return c.json(report, 201);
+});
+
+app.get("/api/reports", async (c) => {
+  const query = parseReportsQuery(c.req.query());
+  if (isValidationError(query)) {
+    return c.json({ error: query.error }, 400);
+  }
+
+  try {
+    const stmt = query.since
+      ? c.env.DB.prepare(
+          `SELECT id, latitude, longitude, description, severity, created_at
+           FROM reports
+           WHERE latitude >= ? AND latitude <= ?
+             AND longitude >= ? AND longitude <= ?
+             AND created_at >= ?
+           ORDER BY created_at DESC
+           LIMIT 200`,
+        ).bind(query.south, query.north, query.west, query.east, query.since)
+      : c.env.DB.prepare(
+          `SELECT id, latitude, longitude, description, severity, created_at
+           FROM reports
+           WHERE latitude >= ? AND latitude <= ?
+             AND longitude >= ? AND longitude <= ?
+           ORDER BY created_at DESC
+           LIMIT 200`,
+        ).bind(query.south, query.north, query.west, query.east);
+
+    const { results } = await stmt.all<{
+      id: string;
+      latitude: number;
+      longitude: number;
+      description: string;
+      severity: string;
+      created_at: string;
+    }>();
+
+    const reports = (results ?? []).map(rowToFireReport);
+    return c.json(reports);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "database error";
     return c.json({ error: message }, 502);
   }
 });

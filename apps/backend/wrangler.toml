@@ -7,6 +7,11 @@ binding = "FIRES_CACHE"
 id = "1630b620c6ae48d8a5e9e2a4f688672a"
 preview_id = "00000000000000000000000000000000"
 
+[[d1_databases]]
+binding = "DB"
+database_name = "sentinela-db"
+database_id = "e353ccb6-0f8e-452e-851e-832974c79641"
+
 [assets]
 directory = "./static"
 binding = "ASSETS"
