@@ -17,6 +17,7 @@ import { DEFAULT_NEAR_RADIUS_KM, type UserLocation } from "../hooks/useNearMe";
 import { MapResizeHandler } from "./MapResizeHandler";
 import { MapFlyTo } from "./MapFlyTo";
 import { MapClickHandler } from "./MapClickHandler";
+import { ReportPopup } from "./ReportPopup";
 import "leaflet/dist/leaflet.css";
 
 const BRAZIL_CENTER: [number, number] = [-14.5, -52];
@@ -29,6 +30,8 @@ interface FireMapProps {
   flyToCenter: [number, number] | null;
   mapPickMode?: boolean;
   onMapPick?: (lat: number, lon: number) => void;
+  onReportRemoved?: (id: string) => void;
+  onReportUpdated?: (report: FireReport) => void;
 }
 
 function formatDateTime(iso: string): string {
@@ -46,6 +49,8 @@ export function FireMap({
   flyToCenter,
   mapPickMode = false,
   onMapPick,
+  onReportRemoved,
+  onReportUpdated,
 }: FireMapProps) {
   const markers = useMemo(() => hotspots, [hotspots]);
 
@@ -165,14 +170,13 @@ export function FireMap({
                 dashArray: "2 2",
               }}
             >
-              <Popup>
-                <strong>Reporte da comunidade</strong>
-                <br />
-                Severidade: {REPORT_LABELS[report.severity]}
-                <br />
-                {report.description}
-                <br />
-                {formatDateTime(report.createdAt)} UTC
+              <Popup maxWidth={300} minWidth={220}>
+                <ReportPopup
+                  report={report}
+                  formatDateTime={formatDateTime}
+                  onRemoved={(id) => onReportRemoved?.(id)}
+                  onUpdated={(updated) => onReportUpdated?.(updated)}
+                />
               </Popup>
             </CircleMarker>
           ))}

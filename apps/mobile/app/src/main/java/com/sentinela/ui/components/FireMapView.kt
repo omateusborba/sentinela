@@ -25,7 +25,7 @@ fun FireMapView(
 ) {
     val mapUrl = remember(days) {
         val base = BuildConfig.SENTINELA_API_URL.trimEnd('/')
-        "$base/mobile-map?days=$days&v=4"
+        "$base/mobile-map?days=$days&v=5"
     }
 
     AndroidView(

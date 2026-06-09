@@ -20,6 +20,32 @@
       border-radius: 6px; font: 11px sans-serif; max-width: 90%;
     }
     .leaflet-tile-pane img { opacity: 1 !important; visibility: visible !important; }
+    .leaflet-popup-content {
+      max-width: min(300px, 85vw);
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      font: 12px/1.4 sans-serif;
+    }
+    .report-popup .rp-desc {
+      margin: 6px 0;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    .report-popup .rp-meta { margin: 4px 0 0; color: #64748b; font-size: 11px; }
+    .report-popup .rp-actions {
+      margin-top: 8px; padding-top: 8px; border-top: 1px solid #e2e8f0;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .report-popup .rp-label { margin: 0 0 2px; font-size: 11px; font-weight: 600; color: #64748b; }
+    .report-popup button {
+      width: 100%; border-radius: 6px; padding: 6px 8px; font-size: 11px; font-weight: 600;
+      border: 1px solid #cbd5e1; background: #fff; cursor: pointer;
+    }
+    .report-popup .rp-severe { border-color: #E8401E; color: #E8401E; background: rgba(232,64,30,0.06); }
+    .report-popup .rp-ok { border-color: #16a34a; color: #15803d; }
+    .report-popup .rp-muted { border-color: #94a3b8; color: #64748b; }
+    .report-popup .rp-error { margin: 6px 0 0; color: #E8401E; font-size: 11px; }
   </style>
 </head>
 <body>
@@ -41,6 +67,106 @@
     let userRadiusLayer = null;
     let tileLayer = null;
     let tileErrors = 0;
+    const reportMarkers = {};
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function reportRadius(severity) {
+      if (severity === 'high') return 10;
+      if (severity === 'medium') return 8;
+      return 7;
+    }
+
+    function reportPopupHtml(r) {
+      return (
+        '<div class="report-popup" id="rp-' + r.id + '">' +
+          '<b>Reporte comunidade</b>' +
+          '<p class="rp-meta">Severidade: ' + escapeHtml(r.severity) + '</p>' +
+          '<p class="rp-desc">' + escapeHtml(r.description || '') + '</p>' +
+          '<p class="rp-meta">' + escapeHtml(r.createdAt) + '</p>' +
+          '<div class="rp-actions">' +
+            '<p class="rp-label">O que está acontecendo?</p>' +
+            '<button type="button" class="rp-ok" data-feedback="controlled" data-id="' + r.id + '">Incêndio controlado</button>' +
+            '<button type="button" class="rp-muted" data-feedback="false_alarm" data-id="' + r.id + '">Alarme falso</button>' +
+            '<button type="button" class="rp-severe" data-feedback="severe" data-id="' + r.id + '">Incêndio grave</button>' +
+          '</div>' +
+        '</div>'
+      );
+    }
+
+    function bindReportPopupHandlers(popup, marker, report) {
+      popup.on('add', function() {
+        const el = popup.getElement();
+        if (!el) return;
+        el.querySelectorAll('[data-feedback]').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            submitReportFeedback(report.id, btn.getAttribute('data-feedback'), btn, marker);
+          });
+        });
+      });
+    }
+
+    async function submitReportFeedback(id, feedback, btn, marker) {
+      btn.disabled = true;
+      btn.textContent = 'Enviando…';
+      try {
+        const res = await fetch('/api/reports/' + encodeURIComponent(id) + '/feedback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ feedback: feedback }),
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        if (data.removed) {
+          reportsLayer.removeLayer(marker);
+          delete reportMarkers[id];
+          map.closePopup();
+          return;
+        }
+        if (data.report) {
+          marker.setStyle({
+            fillColor: REPORT_COLORS.high,
+            radius: reportRadius('high'),
+          });
+          marker.setPopupContent(reportPopupHtml(data.report));
+          bindReportPopupHandlers(marker.getPopup(), marker, data.report);
+        }
+      } catch (e) {
+        const root = document.getElementById('rp-' + id);
+        if (root) {
+          const err = document.createElement('p');
+          err.className = 'rp-error';
+          err.textContent = 'Não foi possível registrar.';
+          root.appendChild(err);
+        }
+        btn.disabled = false;
+        btn.textContent = feedback === 'severe' ? 'Incêndio grave' :
+          feedback === 'false_alarm' ? 'Alarme falso' : 'Incêndio controlado';
+      }
+    }
+
+    function renderReports(reports) {
+      reportsLayer.clearLayers();
+      Object.keys(reportMarkers).forEach(function(k) { delete reportMarkers[k]; });
+      reports.forEach(function(r) {
+        const color = REPORT_COLORS[r.severity] || REPORT_COLORS.medium;
+        const marker = L.circleMarker([r.latitude, r.longitude], {
+          radius: reportRadius(r.severity),
+          color: '#fff', fillColor: color, fillOpacity: 0.9, weight: 2, dashArray: '3 2'
+        });
+        const popup = L.popup({ maxWidth: 300, minWidth: 220 }).setContent(reportPopupHtml(r));
+        marker.bindPopup(popup);
+        bindReportPopupHandlers(popup, marker, r);
+        marker.addTo(reportsLayer);
+        reportMarkers[r.id] = marker;
+      });
+    }
 
     function initMap() {
       if (map) return;
@@ -79,19 +205,6 @@
           radius: 5, color: color, fillColor: color, fillOpacity: 0.85, weight: 1
         }).bindPopup('<b>Satélite</b><br>' + f.id + '<br>' + f.confidence).addTo(firesLayer);
       }
-    }
-
-    function renderReports(reports) {
-      reportsLayer.clearLayers();
-      reports.forEach(function(r) {
-        const color = REPORT_COLORS[r.severity] || REPORT_COLORS.medium;
-        L.circleMarker([r.latitude, r.longitude], {
-          radius: 8, color: '#fff', fillColor: color, fillOpacity: 0.9, weight: 2, dashArray: '3 2'
-        }).bindPopup(
-          '<b>Reporte comunidade</b><br>' +
-          (r.description || '') + '<br>Severidade: ' + r.severity + '<br>' + r.createdAt
-        ).addTo(reportsLayer);
-      });
     }
 
     window.setUserLocation = function(lat, lon) {

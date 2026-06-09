@@ -1,11 +1,20 @@
-import type { FireReport } from "@sentinela/shared";
+import type { FireReport, ReportFeedback } from "@sentinela/shared";
+import { REPORT_TTL_HOURS } from "@sentinela/shared";
 import { isValidationError, parseBbox, type ValidationError } from "./validation";
 
 export const REPORT_DESCRIPTION_MAX = 280;
+export const REPORT_ACTIVE_STATUS = "active";
+export const REPORT_CONTROLLED_STATUS = "controlled";
+export const REPORT_FALSE_ALARM_STATUS = "false_alarm";
 
 export type ReportSeverity = FireReport["severity"];
 
 const ALLOWED_SEVERITIES: ReportSeverity[] = ["low", "medium", "high"];
+const ALLOWED_FEEDBACK: ReportFeedback[] = [
+  "controlled",
+  "false_alarm",
+  "severe",
+];
 
 export interface CreateReportBody {
   latitude: number;
@@ -14,12 +23,19 @@ export interface CreateReportBody {
   severity: ReportSeverity;
 }
 
-/** Remove tags HTML básicas e normaliza espaços. */
+/** Remove tags HTML básicas e normaliza espaços (preserva quebras de linha). */
 export function sanitizeDescription(raw: string): string {
   return raw
     .replace(/<[^>]*>/g, "")
-    .replace(/\s+/g, " ")
+    .replace(/[^\S\n]+/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
     .trim();
+}
+
+export function defaultReportSince(): string {
+  return new Date(
+    Date.now() - REPORT_TTL_HOURS * 60 * 60 * 1000,
+  ).toISOString();
 }
 
 export function parseLatitude(raw: unknown): number | ValidationError {
@@ -84,12 +100,44 @@ export function parseCreateReportBody(
 }
 
 export function parseSince(raw: string | undefined): string | ValidationError {
-  if (!raw?.trim()) return "";
+  if (!raw?.trim()) return defaultReportSince();
   const date = new Date(raw);
   if (Number.isNaN(date.getTime())) {
     return { error: "since must be a valid ISO 8601 date-time" };
   }
   return date.toISOString();
+}
+
+export function parseReportFeedback(
+  body: unknown,
+): ReportFeedback | ValidationError {
+  if (typeof body !== "object" || body === null) {
+    return { error: "request body must be JSON object" };
+  }
+  const record = body as Record<string, unknown>;
+  if (typeof record.feedback !== "string") {
+    return {
+      error: "feedback must be one of: controlled, false_alarm, severe",
+    };
+  }
+  const feedback = record.feedback.trim().toLowerCase() as ReportFeedback;
+  if (!ALLOWED_FEEDBACK.includes(feedback)) {
+    return {
+      error: "feedback must be one of: controlled, false_alarm, severe",
+    };
+  }
+  return feedback;
+}
+
+export function feedbackToStatus(feedback: ReportFeedback): string | null {
+  switch (feedback) {
+    case "controlled":
+      return REPORT_CONTROLLED_STATUS;
+    case "false_alarm":
+      return REPORT_FALSE_ALARM_STATUS;
+    default:
+      return null;
+  }
 }
 
 export interface ReportsQuery {

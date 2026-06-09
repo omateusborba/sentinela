@@ -386,6 +386,9 @@ body {
   font-size: 0.8rem;
   line-height: 1.4;
   margin: 0.5rem 0.75rem;
+  max-width: min(300px, 85vw);
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 /* Mobile: cards */
@@ -656,7 +659,79 @@ body {
 }
 
 .leaflet-popup-content {
-  max-width: min(280px, 85vw);
+  max-width: min(300px, 85vw);
+}
+
+.report-popup {
+  min-width: 200px;
+}
+
+.report-popup__meta {
+  margin: 0.35rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.report-popup__description {
+  margin: 0.5rem 0 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.report-popup__actions {
+  margin-top: 0.75rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.report-popup__actions-label {
+  margin: 0 0 0.15rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.report-popup__btn {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.4rem 0.55rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.report-popup__btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.report-popup__btn--ok {
+  border-color: #16a34a;
+  color: #15803d;
+}
+
+.report-popup__btn--muted {
+  border-color: #94a3b8;
+  color: #64748b;
+}
+
+.report-popup__btn--severe {
+  border-color: var(--flame-red);
+  color: var(--flame-red);
+  background: rgba(232, 64, 30, 0.06);
+}
+
+.report-popup__error {
+  margin: 0.5rem 0 0;
+  color: var(--flame-red);
+  font-size: 0.72rem;
 }
 
 /* Perto de mim */

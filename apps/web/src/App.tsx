@@ -31,11 +31,32 @@ export default function App() {
     null,
   );
   const [localReports, setLocalReports] = useState<FireReport[]>([]);
+  const [dismissedReportIds, setDismissedReportIds] = useState<string[]>([]);
+  const [severityOverrides, setSeverityOverrides] = useState<
+    Record<string, FireReport["severity"]>
+  >({});
 
-  const allReports = useMemo(
-    () => [...reports, ...localReports.filter((r) => !reports.some((x) => x.id === r.id))],
-    [reports, localReports],
-  );
+  const allReports = useMemo(() => {
+    const merged = [
+      ...reports,
+      ...localReports.filter((r) => !reports.some((x) => x.id === r.id)),
+    ];
+    return merged
+      .filter((r) => !dismissedReportIds.includes(r.id))
+      .map((r) => {
+        const severity = severityOverrides[r.id];
+        return severity ? { ...r, severity } : r;
+      });
+  }, [reports, localReports, dismissedReportIds, severityOverrides]);
+
+  function handleReportRemoved(id: string) {
+    setDismissedReportIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
+    setLocalReports((prev) => prev.filter((r) => r.id !== id));
+  }
+
+  function handleReportUpdated(updated: FireReport) {
+    setSeverityOverrides((prev) => ({ ...prev, [updated.id]: updated.severity }));
+  }
 
   const flyToCenter: [number, number] | null = location
     ? [location.latitude, location.longitude]
@@ -109,6 +130,8 @@ export default function App() {
                 flyToCenter={flyToCenter}
                 mapPickMode={mapPickMode}
                 onMapPick={handleMapPick}
+                onReportRemoved={handleReportRemoved}
+                onReportUpdated={handleReportUpdated}
               />
               <FireTable hotspots={hotspots} />
             </div>

@@ -1,4 +1,11 @@
-import type { CreateFireReportBody, FireHotspot, FireReport, RegionRisk } from "@sentinela/shared";
+import type {
+  CreateFireReportBody,
+  FireHotspot,
+  FireReport,
+  RegionRisk,
+  ReportFeedback,
+  ReportFeedbackResponse,
+} from "@sentinela/shared";
 import { API_BASE } from "../config";
 
 export interface FiresResponse {
@@ -67,6 +74,15 @@ export function fetchReports(bbox: string, since?: string): Promise<FireReport[]
 
 export function submitReport(body: CreateFireReportBody): Promise<FireReport> {
   return postJson<FireReport>("/api/reports", body);
+}
+
+export function submitReportFeedback(
+  id: string,
+  feedback: ReportFeedback,
+): Promise<ReportFeedbackResponse> {
+  return postJson<ReportFeedbackResponse>(`/api/reports/${id}/feedback`, {
+    feedback,
+  });
 }
 
 export function fetchFires(bbox: string, days: number): Promise<FiresResponse> {

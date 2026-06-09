@@ -13,8 +13,11 @@ import {
 import { serveStatic } from "./assets";
 import { fetchOsmTile } from "./tiles";
 import {
+  feedbackToStatus,
   parseCreateReportBody,
+  parseReportFeedback,
   parseReportsQuery,
+  REPORT_ACTIVE_STATUS,
   rowToFireReport,
 } from "./reports";
 
@@ -199,8 +202,8 @@ app.post("/api/reports", async (c) => {
 
   try {
     await c.env.DB.prepare(
-      `INSERT INTO reports (id, latitude, longitude, description, severity, created_at)
-       VALUES (?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO reports (id, latitude, longitude, description, severity, created_at, status)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
     )
       .bind(
         id,
@@ -209,6 +212,7 @@ app.post("/api/reports", async (c) => {
         parsed.description,
         parsed.severity,
         createdAt,
+        REPORT_ACTIVE_STATUS,
       )
       .run();
   } catch (err) {
@@ -235,24 +239,23 @@ app.get("/api/reports", async (c) => {
   }
 
   try {
-    const stmt = query.since
-      ? c.env.DB.prepare(
-          `SELECT id, latitude, longitude, description, severity, created_at
-           FROM reports
-           WHERE latitude >= ? AND latitude <= ?
-             AND longitude >= ? AND longitude <= ?
-             AND created_at >= ?
-           ORDER BY created_at DESC
-           LIMIT 200`,
-        ).bind(query.south, query.north, query.west, query.east, query.since)
-      : c.env.DB.prepare(
-          `SELECT id, latitude, longitude, description, severity, created_at
-           FROM reports
-           WHERE latitude >= ? AND latitude <= ?
-             AND longitude >= ? AND longitude <= ?
-           ORDER BY created_at DESC
-           LIMIT 200`,
-        ).bind(query.south, query.north, query.west, query.east);
+    const stmt = c.env.DB.prepare(
+      `SELECT id, latitude, longitude, description, severity, created_at
+       FROM reports
+       WHERE status = ?
+         AND latitude >= ? AND latitude <= ?
+         AND longitude >= ? AND longitude <= ?
+         AND created_at >= ?
+       ORDER BY created_at DESC
+       LIMIT 200`,
+    ).bind(
+      REPORT_ACTIVE_STATUS,
+      query.south,
+      query.north,
+      query.west,
+      query.east,
+      query.since,
+    );
 
     const { results } = await stmt.all<{
       id: string;
@@ -265,6 +268,71 @@ app.get("/api/reports", async (c) => {
 
     const reports = (results ?? []).map(rowToFireReport);
     return c.json(reports);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "database error";
+    return c.json({ error: message }, 502);
+  }
+});
+
+app.post("/api/reports/:id/feedback", async (c) => {
+  const id = c.req.param("id")?.trim();
+  if (!id) {
+    return c.json({ error: "report id is required" }, 400);
+  }
+
+  let body: unknown;
+  try {
+    body = await c.req.json();
+  } catch {
+    return c.json({ error: "invalid JSON body" }, 400);
+  }
+
+  const feedback = parseReportFeedback(body);
+  if (isValidationError(feedback)) {
+    return c.json({ error: feedback.error }, 400);
+  }
+
+  try {
+    const existing = await c.env.DB.prepare(
+      `SELECT id, latitude, longitude, description, severity, created_at, status
+       FROM reports
+       WHERE id = ?`,
+    )
+      .bind(id)
+      .first<{
+        id: string;
+        latitude: number;
+        longitude: number;
+        description: string;
+        severity: string;
+        created_at: string;
+        status: string;
+      }>();
+
+    if (!existing) {
+      return c.json({ error: "report not found" }, 404);
+    }
+    if (existing.status !== REPORT_ACTIVE_STATUS) {
+      return c.json({ error: "report is no longer active" }, 410);
+    }
+
+    const newStatus = feedbackToStatus(feedback);
+    if (newStatus) {
+      await c.env.DB.prepare(`UPDATE reports SET status = ? WHERE id = ?`)
+        .bind(newStatus, id)
+        .run();
+      return c.json({ id, removed: true });
+    }
+
+    await c.env.DB.prepare(`UPDATE reports SET severity = 'high' WHERE id = ?`)
+      .bind(id)
+      .run();
+
+    const report = rowToFireReport({
+      ...existing,
+      severity: "high",
+    });
+    return c.json({ id, removed: false, report });
   } catch (err) {
     const message = err instanceof Error ? err.message : "database error";
     return c.json({ error: message }, 502);

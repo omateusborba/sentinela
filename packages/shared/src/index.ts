@@ -52,3 +52,19 @@ export interface CreateFireReportBody {
   description: string;
   severity: FireReport["severity"];
 }
+
+/** Feedback da comunidade sobre um reporte ativo. */
+export type ReportFeedback = "controlled" | "false_alarm" | "severe";
+
+export interface ReportFeedbackBody {
+  feedback: ReportFeedback;
+}
+
+export interface ReportFeedbackResponse {
+  id: string;
+  removed: boolean;
+  report?: FireReport;
+}
+
+/** Reportes ativos expiram após este período (horas). */
+export const REPORT_TTL_HOURS = 24;
