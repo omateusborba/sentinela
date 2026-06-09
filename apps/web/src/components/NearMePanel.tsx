@@ -6,7 +6,6 @@ interface NearMePanelProps {
   location: UserLocation | null;
   evaluation: NearMeResult | null;
   radiusKm: number;
-  onLocate: () => void;
 }
 
 export function NearMePanel({
@@ -15,7 +14,6 @@ export function NearMePanel({
   location,
   evaluation,
   radiusKm,
-  onLocate,
 }: NearMePanelProps) {
   const inAlert = (evaluation?.firesInRadius.length ?? 0) > 0;
 
@@ -25,14 +23,9 @@ export function NearMePanel({
         Perto de mim
       </h2>
       <div className={`near-me__card${inAlert ? " near-me__card--alert" : ""}`}>
-        <button
-          type="button"
-          className="btn btn--primary near-me__btn"
-          onClick={onLocate}
-          disabled={loading}
-        >
-          {loading ? "Obtendo localização…" : "Atualizar minha localização"}
-        </button>
+        {loading && !location && (
+          <p className="near-me__loading">Obtendo localização…</p>
+        )}
 
         {error && <p className="near-me__error">{error}</p>}
 

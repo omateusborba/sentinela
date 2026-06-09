@@ -4,8 +4,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -13,7 +11,6 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.sentinela.SentinelaDefaults
 import com.sentinela.ui.map.NearMeUiState
@@ -22,7 +19,6 @@ import com.sentinela.ui.theme.SentinelaColors
 @Composable
 fun NearMeCard(
     state: NearMeUiState,
-    onRefreshLocation: () -> Unit,
     onCenterMap: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -43,16 +39,11 @@ fun NearMeCard(
             ),
         ) {
             Column(modifier = Modifier.padding(14.dp)) {
-                Button(
-                    onClick = onRefreshLocation,
-                    enabled = !state.loading,
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = SentinelaColors.FlameOrange,
-                    ),
-                ) {
+                if (state.loading && state.coordinate == null) {
                     Text(
-                        if (state.loading) "Obtendo localização…" else "Atualizar minha localização",
+                        text = "Obtendo localização…",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = SentinelaColors.TextMuted,
                     )
                 }
 
@@ -61,7 +52,7 @@ fun NearMeCard(
                         text = it,
                         color = SentinelaColors.FlameRed,
                         style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(top = 8.dp),
+                        modifier = Modifier.padding(top = if (state.loading) 8.dp else 0.dp),
                     )
                 }
 

@@ -676,14 +676,10 @@ body {
   background: rgba(232, 64, 30, 0.08);
 }
 
-.near-me__btn {
-  width: 100%;
-}
-
-@media (min-width: 480px) {
-  .near-me__btn {
-    width: auto;
-  }
+.near-me__loading {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.875rem;
 }
 
 .near-me__error {

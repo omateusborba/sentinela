@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { FireHotspot } from "@sentinela/shared";
 import { haversineKm } from "../utils/haversine";
 
@@ -18,10 +18,11 @@ export interface NearMeResult {
 export function useNearMe(hotspots: FireHotspot[], radiusKm = DEFAULT_NEAR_RADIUS_KM) {
   const [location, setLocation] = useState<UserLocation | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const locate = useCallback(() => {
     if (!navigator.geolocation) {
+      setLoading(false);
       setError("Geolocalização não suportada neste navegador.");
       return;
     }
@@ -46,6 +47,10 @@ export function useNearMe(hotspots: FireHotspot[], radiusKm = DEFAULT_NEAR_RADIU
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
     );
   }, []);
+
+  useEffect(() => {
+    locate();
+  }, [locate]);
 
   const evaluation: NearMeResult | null = location
     ? evaluateNearMe(location, hotspots, radiusKm)

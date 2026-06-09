@@ -22,7 +22,7 @@ export default function App() {
   const { hotspots, reports, regionCards, loading, error, reload } =
     useDashboardData(days);
 
-  const { location, error: locError, loading: locLoading, locate, evaluation, radiusKm } =
+  const { location, error: locError, loading: locLoading, evaluation, radiusKm } =
     useNearMe(hotspots);
 
   const [reportOpen, setReportOpen] = useState(false);
@@ -81,7 +81,6 @@ export default function App() {
               location={location}
               evaluation={evaluation}
               radiusKm={radiusKm}
-              onLocate={locate}
             />
             <div className="map-actions">
               <button

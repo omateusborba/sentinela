@@ -67,7 +67,7 @@ class MapViewModel(
     private val _uiState = MutableStateFlow<LoadableUiState<MapSuccess>>(LoadableUiState.Loading)
     val uiState: StateFlow<LoadableUiState<MapSuccess>> = _uiState.asStateFlow()
 
-    private val _nearMe = MutableStateFlow(NearMeUiState())
+    private val _nearMe = MutableStateFlow(NearMeUiState(loading = true))
     val nearMe: StateFlow<NearMeUiState> = _nearMe.asStateFlow()
 
     private val _centerOnUser = MutableStateFlow(false)
