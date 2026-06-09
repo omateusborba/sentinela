@@ -18,10 +18,14 @@ import com.sentinela.BuildConfig
 fun FireMapView(
     days: Int,
     modifier: Modifier = Modifier,
+    userLatitude: Double? = null,
+    userLongitude: Double? = null,
+    centerOnUser: Boolean = false,
+    onCenterOnUserHandled: () -> Unit = {},
 ) {
     val mapUrl = remember(days) {
         val base = BuildConfig.SENTINELA_API_URL.trimEnd('/')
-        "$base/mobile-map?days=$days&v=3"
+        "$base/mobile-map?days=$days&v=4"
     }
 
     AndroidView(
@@ -58,6 +62,16 @@ fun FireMapView(
         update = { webView ->
             if (webView.url != mapUrl) {
                 webView.loadUrl(mapUrl)
+            }
+            if (userLatitude != null && userLongitude != null) {
+                webView.evaluateJavascript(
+                    "window.setUserLocation($userLatitude,$userLongitude);",
+                    null,
+                )
+            }
+            if (centerOnUser && userLatitude != null && userLongitude != null) {
+                webView.evaluateJavascript("window.centerOnUser();", null)
+                onCenterOnUserHandled()
             }
         },
     )

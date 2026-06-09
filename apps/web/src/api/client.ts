@@ -1,4 +1,4 @@
-import type { FireHotspot, RegionRisk } from "@sentinela/shared";
+import type { CreateFireReportBody, FireHotspot, FireReport, RegionRisk } from "@sentinela/shared";
 import { API_BASE } from "../config";
 
 export interface FiresResponse {
@@ -35,6 +35,38 @@ async function getJson<T>(path: string): Promise<T> {
   }
 
   return response.json() as Promise<T>;
+}
+
+async function postJson<T>(path: string, body: unknown): Promise<T> {
+  const url = `${API_BASE}${path}`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    let message = `Request failed (${response.status})`;
+    try {
+      const payload = (await response.json()) as ApiError;
+      if (payload.error) message = payload.error;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(message);
+  }
+
+  return response.json() as Promise<T>;
+}
+
+export function fetchReports(bbox: string, since?: string): Promise<FireReport[]> {
+  const params = new URLSearchParams({ bbox });
+  if (since) params.set("since", since);
+  return getJson<FireReport[]>(`/api/reports?${params}`);
+}
+
+export function submitReport(body: CreateFireReportBody): Promise<FireReport> {
+  return postJson<FireReport>("/api/reports", body);
 }
 
 export function fetchFires(bbox: string, days: number): Promise<FiresResponse> {

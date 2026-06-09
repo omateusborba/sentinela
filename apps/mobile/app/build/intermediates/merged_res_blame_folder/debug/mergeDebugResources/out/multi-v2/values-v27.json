@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.sentinela.app-mergeDebugResources-53:/values-v27/values-v27.xml",
+            "outputFile": "com.sentinela.app-mergeDebugResources-57:/values-v27/values-v27.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\mateu\\.gradle\\caches\\8.11.1\\transforms\\7194b3d00bfb02d79af27032a555be72\\transformed\\core-splashscreen-1.0.1\\res\\values-v27\\values-v27.xml",
+                    "source": "C:\\Users\\mateu\\.gradle\\caches\\8.11.1\\transforms\\eb992b7e569560d8a01cc240331e32a6\\transformed\\core-splashscreen-1.0.1\\res\\values-v27\\values-v27.xml",
                     "from": {
                         "startLines": "2,3,4,7",
                         "startColumns": "4,4,4,4",

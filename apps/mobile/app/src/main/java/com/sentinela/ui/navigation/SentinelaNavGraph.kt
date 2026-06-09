@@ -13,6 +13,7 @@ import com.sentinela.ui.list.FireListScreen
 import com.sentinela.ui.map.MapScreen
 import com.sentinela.ui.points.PointFormScreen
 import com.sentinela.ui.points.PointsScreen
+import com.sentinela.ui.report.ReportFireScreen
 
 @Composable
 fun SentinelaNavGraph(
@@ -29,6 +30,7 @@ fun SentinelaNavGraph(
             MapScreen(
                 onOpenPoints = { navController.navigate(Routes.POINTS) },
                 onOpenAlerts = { navController.navigate(Routes.ALERT) },
+                onOpenReport = { navController.navigate(Routes.REPORT_FIRE) },
                 onFireClick = { id -> navController.navigate(Routes.fireDetail(id)) },
             )
         }
@@ -68,6 +70,13 @@ fun SentinelaNavGraph(
         }
         composable(Routes.ALERT) {
             AlertScreen(onBack = { navController.popBackStack() })
+        }
+        composable(Routes.REPORT_FIRE) {
+            ReportFireScreen(
+                initialCoordinate = null,
+                onBack = { navController.popBackStack() },
+                onSubmitted = { navController.popBackStack(Routes.MAP, false) },
+            )
         }
     }
 }

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import type { FireHotspot } from "@sentinela/shared";
-import { fetchFires, fetchRisk, type RiskResponse } from "../api/client";
+import type { FireHotspot, FireReport } from "@sentinela/shared";
+import { fetchFires, fetchReports, fetchRisk, type RiskResponse } from "../api/client";
 import { BRAZIL_BBOX, MONITOR_REGIONS } from "../config";
 
 export interface RegionRiskCard {
@@ -12,6 +12,7 @@ export interface RegionRiskCard {
 
 interface DashboardState {
   hotspots: FireHotspot[];
+  reports: FireReport[];
   regionCards: RegionRiskCard[];
   loading: boolean;
   error: string | null;
@@ -20,6 +21,7 @@ interface DashboardState {
 export function useDashboardData(days: number) {
   const [state, setState] = useState<DashboardState>({
     hotspots: [],
+    reports: [],
     regionCards: MONITOR_REGIONS.map((r) => ({
       regionId: r.id,
       regionName: r.name,
@@ -35,6 +37,7 @@ export function useDashboardData(days: number) {
 
     try {
       const firesPromise = fetchFires(BRAZIL_BBOX, days);
+      const reportsPromise = fetchReports(BRAZIL_BBOX).catch(() => [] as FireReport[]);
       const riskPromises = MONITOR_REGIONS.map(async (region) => {
         try {
           const data = await fetchRisk(region.bbox, days);
@@ -55,13 +58,15 @@ export function useDashboardData(days: number) {
         }
       });
 
-      const [fires, ...regionCards] = await Promise.all([
+      const [fires, reports, ...regionCards] = await Promise.all([
         firesPromise,
+        reportsPromise,
         ...riskPromises,
       ]);
 
       setState({
         hotspots: fires.hotspots,
+        reports,
         regionCards,
         loading: false,
         error: null,

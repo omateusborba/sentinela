@@ -80,6 +80,22 @@ A segunda chamada idêntica a `/api/fires` deve retornar o header `X-Cache: HIT`
 | GET | `/health` | `{ "status": "ok" }` |
 | GET | `/api/fires?bbox=&days=&source=` | Lista de focos normalizados (`FireHotspot[]`) |
 | GET | `/api/risk?bbox=&days=` | Índice de risco (`RegionRisk`) |
+| GET | `/api/reports?bbox=&since=` | Reportes colaborativos (`FireReport[]`, máx. 200) |
+| POST | `/api/reports` | Cria reporte anônimo (body JSON, retorna 201) |
+
+> **MVP — reportes colaborativos:** anônimos e **sem moderação** nesta versão. Cap de 280 caracteres na descrição + sanitização HTML. Autenticação e moderação são roadmap.
+
+### D1 (reportes)
+
+```bash
+cd apps/backend
+npx wrangler d1 create sentinela-db   # se ainda não existir
+npx wrangler d1 execute sentinela-db --remote --file=schema.sql
+# dev local:
+npx wrangler d1 execute sentinela-db --local --file=schema.sql
+```
+
+O `database_id` do D1 fica em `apps/backend/wrangler.toml` e `wrangler.toml` (raiz).
 
 **Parâmetros**
 

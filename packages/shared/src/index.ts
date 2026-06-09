@@ -35,3 +35,20 @@ export interface FiresQueryParams {
   days: number;
   source: FirmsSource;
 }
+
+/** Reporte colaborativo de incêndio (persistido no D1). */
+export interface FireReport {
+  id: string;
+  latitude: number;
+  longitude: number;
+  description: string;
+  severity: "low" | "medium" | "high";
+  createdAt: string; // ISO 8601
+}
+
+export interface CreateFireReportBody {
+  latitude: number;
+  longitude: number;
+  description: string;
+  severity: FireReport["severity"];
+}

@@ -3,6 +3,9 @@ import { SENTINELA_API_URL } from "@sentinela/shared";
 /** Brazil bounding box (west,south,east,north). */
 export const BRAZIL_BBOX = "-74,-34,-34,6";
 
+/** Limite de caracteres para reportes colaborativos (alinhado ao backend). */
+export const REPORT_DESCRIPTION_MAX = 280;
+
 export const API_BASE =
   import.meta.env.VITE_API_URL?.replace(/\/$/, "") || SENTINELA_API_URL;
 

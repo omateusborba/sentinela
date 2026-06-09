@@ -658,3 +658,213 @@ body {
 .leaflet-popup-content {
   max-width: min(280px, 85vw);
 }
+
+/* Perto de mim */
+.near-me {
+  margin-bottom: 1.25rem;
+}
+
+.near-me__card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+}
+
+.near-me__card--alert {
+  border-color: var(--flame-red);
+  background: rgba(232, 64, 30, 0.08);
+}
+
+.near-me__btn {
+  width: 100%;
+}
+
+@media (min-width: 480px) {
+  .near-me__btn {
+    width: auto;
+  }
+}
+
+.near-me__error {
+  margin: 0.75rem 0 0;
+  color: var(--flame-red);
+  font-size: 0.875rem;
+}
+
+.near-me__result {
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
+}
+
+.near-me__coords {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.near-me__alert {
+  margin-top: 0.5rem;
+  color: var(--flame-red);
+  font-weight: 600;
+}
+
+.near-me__ok {
+  margin-top: 0.5rem;
+  color: var(--risk-low);
+}
+
+.map-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.map-section__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.map-section__pick-hint {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--flame-orange);
+}
+
+.map-legend__group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.75rem;
+  margin-right: 0.75rem;
+}
+
+.dot--report-low {
+  background: #2563eb;
+}
+
+.dot--report-medium {
+  background: #7c3aed;
+}
+
+.dot--report-high {
+  background: #9333ea;
+}
+
+.dot--user {
+  background: #2563eb;
+  box-shadow: 0 0 0 2px #fff, 0 0 0 3px #2563eb;
+}
+
+/* Modal reporte */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 26, 51, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 2000;
+}
+
+.modal {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  width: min(100%, 420px);
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 12px 40px rgba(27, 42, 82, 0.2);
+}
+
+.modal__title {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  color: var(--text);
+}
+
+.modal__hint {
+  margin: 0 0 1rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.modal__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.report-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.report-form__label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.report-form__label input,
+.report-form__label textarea {
+  font: inherit;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+}
+
+.report-form__counter {
+  font-weight: 400;
+  font-size: 0.75rem;
+}
+
+.report-form__geo {
+  align-self: flex-start;
+}
+
+.report-form__severity {
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+.report-form__severity legend {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+}
+
+.report-form__radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-right: 1rem;
+  font-size: 0.875rem;
+  color: var(--text);
+}
+
+.report-form__error {
+  margin: 0;
+  color: var(--flame-red);
+  font-size: 0.875rem;
+}
+
+.report-form__success {
+  margin: 0;
+  color: var(--risk-low);
+  font-weight: 600;
+}

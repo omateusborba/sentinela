@@ -8,9 +8,11 @@ import com.sentinela.data.local.AppDatabase
 import com.sentinela.data.remote.SentinelaApi
 import com.sentinela.data.repository.FireRepository
 import com.sentinela.data.repository.MonitoredPointRepository
+import com.sentinela.data.repository.ReportRepository
 import com.sentinela.domain.usecase.EvaluateProximityUseCase
 import com.sentinela.domain.usecase.GetFiresUseCase
 import com.sentinela.domain.usecase.GetRiskUseCase
+import com.sentinela.location.LocationProvider
 import com.sentinela.notification.NotificationHelper
 import com.sentinela.ui.alert.AlertViewModel
 import com.sentinela.ui.detail.FireDetailViewModel
@@ -18,6 +20,7 @@ import com.sentinela.ui.list.FireListViewModel
 import com.sentinela.ui.map.MapViewModel
 import com.sentinela.ui.points.PointFormViewModel
 import com.sentinela.ui.points.PointsViewModel
+import com.sentinela.ui.report.ReportFireViewModel
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -64,7 +67,9 @@ class AppContainer(context: Context) {
     ).build()
 
     val fireRepository = FireRepository(api)
+    val reportRepository = ReportRepository(api)
     val monitoredPointRepository = MonitoredPointRepository(database)
+    val locationProvider = LocationProvider(context.applicationContext)
 
     private val getFiresUseCase = GetFiresUseCase(fireRepository)
     private val getRiskUseCase = GetRiskUseCase(fireRepository)
@@ -79,9 +84,18 @@ class AppContainer(context: Context) {
     fun mapViewModel(): MapViewModel = MapViewModel(
         getFiresUseCase = getFiresUseCase,
         getRiskUseCase = getRiskUseCase,
+        reportRepository = reportRepository,
         pointRepository = monitoredPointRepository,
         proximityManager = proximityManager,
+        evaluateProximityUseCase = evaluateProximityUseCase,
+        locationProvider = locationProvider,
+        notificationHelper = notificationHelper,
         firesSessionStore = firesSessionStore,
+    )
+
+    fun reportFireViewModel(): ReportFireViewModel = ReportFireViewModel(
+        reportRepository = reportRepository,
+        locationProvider = locationProvider,
     )
 
     fun fireListViewModel(): FireListViewModel = FireListViewModel(

@@ -1,5 +1,9 @@
 package com.sentinela.ui.map
 
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -11,6 +15,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -22,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sentinela.SentinelaApplication
 import com.sentinela.ui.components.DashboardHeader
@@ -31,6 +38,7 @@ import com.sentinela.ui.components.FireRecentSection
 import com.sentinela.ui.components.LoadingContent
 import com.sentinela.ui.components.LoadableUiState
 import com.sentinela.ui.components.MapLegend
+import com.sentinela.ui.components.NearMeCard
 import com.sentinela.ui.components.RiskCardsSection
 import com.sentinela.ui.components.SectionTitle
 import com.sentinela.ui.theme.SentinelaColors
@@ -39,16 +47,47 @@ import com.sentinela.ui.theme.SentinelaColors
 fun MapScreen(
     onOpenPoints: () -> Unit,
     onOpenAlerts: () -> Unit,
+    onOpenReport: () -> Unit,
     onFireClick: (String) -> Unit,
 ) {
     val app = LocalContext.current.applicationContext as SentinelaApplication
     val viewModel: MapViewModel = viewModel { app.container.mapViewModel() }
     val uiState by viewModel.uiState.collectAsState()
     val period by viewModel.period.collectAsState()
+    val nearMe by viewModel.nearMe.collectAsState()
+    val centerOnUser by viewModel.centerOnUser.collectAsState()
+    val context = LocalContext.current
 
     val fireCount = (uiState as? LoadableUiState.Success)?.data?.fires?.size
     val alertCount = (uiState as? LoadableUiState.Success)?.data?.points?.count { it.inAlert } ?: 0
     val loading = uiState is LoadableUiState.Loading
+
+    val locationLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions(),
+    ) { grants ->
+        val ok = grants[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
+            grants[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+        viewModel.refreshNearMe(ok)
+    }
+
+    fun hasLocationPermission(): Boolean =
+        ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+        ) == PackageManager.PERMISSION_GRANTED
+
+    fun requestNearMe() {
+        if (hasLocationPermission()) {
+            viewModel.refreshNearMe(true)
+        } else {
+            locationLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                ),
+            )
+        }
+    }
 
     Scaffold(
         containerColor = SentinelaColors.Background,
@@ -67,7 +106,7 @@ fun MapScreen(
         },
         bottomBar = {
             Text(
-                text = "Dados: NASA FIRMS · Mapa: OpenStreetMap · API Sentinela",
+                text = "Dados: NASA FIRMS · Mapa: OpenStreetMap · API Sentinela · Reportes colaborativos (MVP anônimo)",
                 style = MaterialTheme.typography.labelSmall,
                 color = SentinelaColors.TextMuted,
                 modifier = Modifier
@@ -91,6 +130,12 @@ fun MapScreen(
             else -> DashboardContent(
                 state = state,
                 period = period,
+                nearMe = nearMe,
+                centerOnUser = centerOnUser,
+                onCenterOnUserHandled = viewModel::onCenterOnUserHandled,
+                onRefreshNearMe = ::requestNearMe,
+                onCenterMap = viewModel::centerMapOnUser,
+                onOpenReport = onOpenReport,
                 onFireClick = onFireClick,
                 modifier = Modifier
                     .fillMaxSize()
@@ -104,6 +149,12 @@ fun MapScreen(
 private fun DashboardContent(
     state: LoadableUiState<MapSuccess>,
     period: com.sentinela.ui.model.PeriodFilter,
+    nearMe: NearMeUiState,
+    centerOnUser: Boolean,
+    onCenterOnUserHandled: () -> Unit,
+    onRefreshNearMe: () -> Unit,
+    onCenterMap: () -> Unit,
+    onOpenReport: () -> Unit,
     onFireClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -156,6 +207,24 @@ private fun DashboardContent(
         }
 
         item {
+            NearMeCard(
+                state = nearMe,
+                onRefreshLocation = onRefreshNearMe,
+                onCenterMap = onCenterMap,
+            )
+        }
+
+        item {
+            Button(
+                onClick = onOpenReport,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = SentinelaColors.FlameOrange),
+            ) {
+                Text("Reportar incêndio")
+            }
+        }
+
+        item {
             BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
                 val wide = maxWidth >= 840.dp
                 if (wide) {
@@ -167,6 +236,10 @@ private fun DashboardContent(
                             days = period.days,
                             mapHeight = mapHeight,
                             loading = state is LoadableUiState.Loading,
+                            userLatitude = nearMe.coordinate?.latitude,
+                            userLongitude = nearMe.coordinate?.longitude,
+                            centerOnUser = centerOnUser,
+                            onCenterOnUserHandled = onCenterOnUserHandled,
                             modifier = Modifier.weight(1.15f),
                         )
                         if (state is LoadableUiState.Success) {
@@ -186,6 +259,10 @@ private fun DashboardContent(
                             days = period.days,
                             mapHeight = mapHeight,
                             loading = state is LoadableUiState.Loading,
+                            userLatitude = nearMe.coordinate?.latitude,
+                            userLongitude = nearMe.coordinate?.longitude,
+                            centerOnUser = centerOnUser,
+                            onCenterOnUserHandled = onCenterOnUserHandled,
                         )
                         when (state) {
                             is LoadableUiState.Success -> FireRecentSection(
@@ -212,6 +289,10 @@ private fun MapBlock(
     days: Int,
     mapHeight: androidx.compose.ui.unit.Dp,
     loading: Boolean,
+    userLatitude: Double? = null,
+    userLongitude: Double? = null,
+    centerOnUser: Boolean = false,
+    onCenterOnUserHandled: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
@@ -233,6 +314,10 @@ private fun MapBlock(
             } else {
                 FireMapView(
                     days = days,
+                    userLatitude = userLatitude,
+                    userLongitude = userLongitude,
+                    centerOnUser = centerOnUser,
+                    onCenterOnUserHandled = onCenterOnUserHandled,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(mapHeight),

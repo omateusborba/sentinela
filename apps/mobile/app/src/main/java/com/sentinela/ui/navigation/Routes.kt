@@ -7,6 +7,7 @@ object Routes {
     const val POINTS = "points"
     const val POINT_FORM = "points/form/{pointId}"
     const val ALERT = "alert"
+    const val REPORT_FIRE = "report-fire"
 
     fun fireDetail(fireId: String) = "fires/$fireId"
     fun pointForm(pointId: Long = 0L) = "points/form/$pointId"

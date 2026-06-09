@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.sentinela.app-mergeDebugResources-53:/values-v30/values-v30.xml",
+            "outputFile": "com.sentinela.app-mergeDebugResources-57:/values-v30/values-v30.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\mateu\\.gradle\\caches\\8.11.1\\transforms\\0de93cab589f7590eb478774f60dd824\\transformed\\material3-release\\res\\values-v30\\values-v30.xml",
+                    "source": "C:\\Users\\mateu\\.gradle\\caches\\8.11.1\\transforms\\3c8ec2cdaa2620203ff13a5ddd8cc9d2\\transformed\\material3-release\\res\\values-v30\\values-v30.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
